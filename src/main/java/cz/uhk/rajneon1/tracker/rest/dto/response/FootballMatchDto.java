@@ -14,7 +14,7 @@ public class FootballMatchDto {
     private int totalSteps;
     private double avgSteps;
     private double totalDistance;
-    private double avgdistance;
+    private double avgDistance;
     private double avgSpeed;
     private List<PerformanceDto> players;
 
@@ -27,7 +27,7 @@ public class FootballMatchDto {
         totalSteps = match.getTotalSteps();
         avgSteps = match.getAvgSteps();
         totalDistance = match.getTotalDistance();
-        avgdistance = match.getAvgDistance();
+        avgDistance = match.getAvgDistance();
         avgSpeed = match.getAvgSpeed();
         players = match.getPlayersPerformances().stream().map(PerformanceDto::new).collect(Collectors.toList());
     }

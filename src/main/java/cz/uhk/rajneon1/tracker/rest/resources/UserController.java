@@ -63,7 +63,7 @@ public class UserController {
             throw new BadRequestException("Request resource is not a player.");
         }
         List<PerformanceDto> performanceDtos = ((Player) playerDetail).getPerformances().stream().map(PerformanceDto::new).collect(Collectors.toList());
-        return ResponseEntity.ok(new PlayerDto(playerDetail.getLogin(), performanceDtos));
+        return ResponseEntity.ok(new PlayerDto(playerDetail.getLogin(), playerDetail.getUserRole(), performanceDtos));
     }
 
     @GetMapping("/api/player")
