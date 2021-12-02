@@ -3,6 +3,7 @@ package cz.uhk.rajneon1.tracker.googlehttpclient;
 import cz.uhk.rajneon1.tracker.model.Player;
 import cz.uhk.rajneon1.tracker.model.PlayerPerformancePerMatch;
 import cz.uhk.rajneon1.tracker.security.GoogleOauthTokenHandler;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
@@ -23,6 +24,8 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class FitHttpClient {
@@ -55,12 +58,12 @@ public class FitHttpClient {
         var state = login + ";" + jwtToken;
         return "https://accounts.google.com/o/oauth2/v2/auth?redirect_uri=" + URLEncoder.encode(redirectHost + "/api/auth/handleGoogleAuthToken", "UTF-8") +
                 "&prompt=consent&response_type=code&client_id=" + URLEncoder.encode(clientId, "UTF-8") + "&scope=" +
-                URLEncoder.encode("https://www.googleapis.com/auth/fitness.activity.read", "UTF-8") + "&access_type=offline" +
-                "&state=" + URLEncoder.encode(state, "UTF-8");
+                URLEncoder.encode("https://www.googleapis.com/auth/fitness.activity.read https://www.googleapis.com/auth/fitness.location.read ", "UTF-8") +
+                "&access_type=offline" + "&state=" + URLEncoder.encode(state, "UTF-8");
     }
 
     public PlayerPerformancePerMatch getPlayerPerformance(Player player, long from, long to) throws IOException,
-            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+            IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, URISyntaxException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         String authToken = getAuthTokenFromRefreshToken(httpClient, player);
         long duration = to - from;
@@ -72,17 +75,19 @@ public class FitHttpClient {
     }
 
     private String getAuthTokenFromRefreshToken(CloseableHttpClient httpClient, Player player) throws NoSuchPaddingException, NoSuchAlgorithmException,
-            IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException {
+            IllegalBlockSizeException, BadPaddingException, InvalidKeyException, IOException, URISyntaxException {
         String refreshToken = tokenHandler.retrieveRefreshToken(player.getLogin());
-        HttpPost postRefresh = new HttpPost("https://www.googleapis.com/oauth2/v4/token");
-        postRefresh.getParams().setParameter("client_id", URLEncoder.encode(clientId, "UTF-8"));
-        postRefresh.getParams().setParameter("client_secret", URLEncoder.encode(clientSecret, "UTF-8"));
-        postRefresh.getParams().setParameter("refresh_token", URLEncoder.encode(refreshToken, "UTF-8"));
-        postRefresh.getParams().setParameter("grant_type", URLEncoder.encode("refresh_token", "UTF-8"));
-        postRefresh.setHeader("Content-Type", "application/x-www-form-urlencoded");
+        URIBuilder builder = new URIBuilder("https://www.googleapis.com/oauth2/v4/token");
+        builder.addParameter("client_id",clientId);
+        builder.addParameter("client_secret", clientSecret);
+        builder.addParameter("refresh_token", refreshToken);
+        builder.addParameter("grant_type", "refresh_token");
+        HttpPost postRefresh = new HttpPost(builder.build());
         String response = EntityUtils.toString(httpClient.execute(postRefresh).getEntity());
         return new JSONObject(response).getString("access_token");
     }
+
+
 
     private int getSteps(CloseableHttpClient httpClient, String authToken, long from, long to, long duration) throws IOException {
         HttpPost postSteps = new HttpPost("https://www.googleapis.com/fitness/v1/users/me/dataset:aggregate");
@@ -99,8 +104,9 @@ public class FitHttpClient {
         postSteps.setEntity(new StringEntity(requestBody));
         postSteps.setHeader("Authorization", "Bearer " + authToken);
         String response = EntityUtils.toString(httpClient.execute(postSteps).getEntity());
-        return new JSONObject(response).getJSONArray("dataset").getJSONObject(0).getJSONArray("point")
-                .getJSONObject(0).getJSONArray("value").getJSONObject(0).getInt("intVal");
+        return new JSONObject(response).getJSONArray("bucket").getJSONObject(0).getJSONArray("dataset")
+                .getJSONObject(0).getJSONArray("point").getJSONObject(0).getJSONArray("value")
+                .getJSONObject(0).getInt("intVal");
     }
 
     private double getDistance(CloseableHttpClient httpClient, String authToken, long from, long to, long duration) throws IOException {
@@ -118,7 +124,7 @@ public class FitHttpClient {
         postDistance.setEntity(new StringEntity(requestBody));
         postDistance.setHeader("Authorization", "Bearer " + authToken);
         String response = EntityUtils.toString(httpClient.execute(postDistance).getEntity());
-        return new JSONObject(response).getJSONArray("dataset").getJSONObject(0).getJSONArray("point")
+        return new JSONObject(response).getJSONArray("bucket").getJSONObject(0).getJSONArray("dataset").getJSONObject(0).getJSONArray("point")
                 .getJSONObject(0).getJSONArray("value").getJSONObject(0).getDouble("fpVal");
     }
 
@@ -137,7 +143,7 @@ public class FitHttpClient {
         postDistance.setEntity(new StringEntity(requestBody));
         postDistance.setHeader("Authorization", "Bearer " + authToken);
         String response = EntityUtils.toString(httpClient.execute(postDistance).getEntity());
-        JSONArray speeds = new JSONObject(response).getJSONArray("dataset").getJSONObject(0)
+        JSONArray speeds = new JSONObject(response).getJSONArray("bucket").getJSONObject(0).getJSONArray("dataset").getJSONObject(0)
                 .getJSONArray("point").getJSONObject(0).getJSONArray("value");
         double avg = speeds.getJSONObject(0).getDouble("fpVal");
         double max = speeds.getJSONObject(1).getDouble("fpVal");

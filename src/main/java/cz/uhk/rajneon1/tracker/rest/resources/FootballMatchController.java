@@ -23,6 +23,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class FootballMatchController {
     public ResponseEntity createMatch(@RequestBody NewFootballMatchDto matchDto, HttpServletRequest request)
             throws ForbiddenResourceException, UserVerificationException, MalformedAuthorizationHeaderException,
             AuthorizationHeaderMissingException, BadRequestException, IllegalBlockSizeException, NoSuchAlgorithmException,
-            IOException, BadPaddingException, NoSuchPaddingException, InvalidKeyException {
+            IOException, BadPaddingException, NoSuchPaddingException, InvalidKeyException, URISyntaxException {
         Trainer trainer = (Trainer) requestVerifier.verifyRequest(request, UserRole.TRAINER);
         requestBodyVerifier.verifyNewFootballMatch(matchDto);
         List<User> players = matchDto.getPlayersLogins().stream().map(it -> userRepository.getOneByLogin(it)).collect(Collectors.toList());

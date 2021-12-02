@@ -10,4 +10,7 @@ public class SimpleIdsDto {
         this.id = id;
     }
 
+    public List<Object> getId() {
+        return id;
+    }
 }

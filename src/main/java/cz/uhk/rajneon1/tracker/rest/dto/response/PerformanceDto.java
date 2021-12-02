@@ -24,4 +24,60 @@ public class PerformanceDto {
         minSpeed = performance.getMinSpeed();
         avgSpeed = performance.getAvgSpeed();
     }
+
+    public int getFootballMatchId() {
+        return footballMatchId;
+    }
+
+    public void setFootballMatchId(int footballMatchId) {
+        this.footballMatchId = footballMatchId;
+    }
+
+    public String getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(String player) {
+        this.player = player;
+    }
+
+    public int getSteps() {
+        return steps;
+    }
+
+    public void setSteps(int steps) {
+        this.steps = steps;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public double getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public void setMaxSpeed(double maxSpeed) {
+        this.maxSpeed = maxSpeed;
+    }
+
+    public double getMinSpeed() {
+        return minSpeed;
+    }
+
+    public void setMinSpeed(double minSpeed) {
+        this.minSpeed = minSpeed;
+    }
+
+    public double getAvgSpeed() {
+        return avgSpeed;
+    }
+
+    public void setAvgSpeed(double avgSpeed) {
+        this.avgSpeed = avgSpeed;
+    }
 }

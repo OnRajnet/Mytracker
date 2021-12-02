@@ -6,6 +6,7 @@ import cz.uhk.rajneon1.tracker.exception.auth.MalformedAuthorizationHeaderExcept
 import cz.uhk.rajneon1.tracker.exception.auth.UserVerificationException;
 import cz.uhk.rajneon1.tracker.exception.resources.ForbiddenResourceException;
 import cz.uhk.rajneon1.tracker.googlehttpclient.FitHttpClient;
+import cz.uhk.rajneon1.tracker.helper.AuthLogin;
 import cz.uhk.rajneon1.tracker.model.User;
 import cz.uhk.rajneon1.tracker.model.UserRole;
 import cz.uhk.rajneon1.tracker.security.GoogleOauthTokenHandler;
@@ -14,6 +15,7 @@ import cz.uhk.rajneon1.tracker.security.ResourceVerifier;
 import cz.uhk.rajneon1.tracker.security.TokenHandler;
 import cz.uhk.rajneon1.tracker.utils.HeaderUtil;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
@@ -38,11 +40,12 @@ public class GoogleOauthTokenController {
     private Environment environment;
     private TokenHandler tokenHandler;
     private HeaderUtil headerUtil;
+    private AuthLogin authLogin;
 
     public GoogleOauthTokenController(UserRepository userRepository, FitHttpClient fitHttpClient,
                                       GoogleOauthTokenHandler googleOauthTokenHandler, RequestVerifier requestVerifier,
                                       ResourceVerifier resourceVerifier, Environment environment,
-                                      TokenHandler tokenHandler, HeaderUtil headerUtil) {
+                                      TokenHandler tokenHandler, HeaderUtil headerUtil, AuthLogin authLogin) {
         this.userRepository = userRepository;
         this.fitHttpClient = fitHttpClient;
         this.googleOauthTokenHandler = googleOauthTokenHandler;
@@ -51,20 +54,20 @@ public class GoogleOauthTokenController {
         this.environment = environment;
         this.tokenHandler = tokenHandler;
         this.headerUtil = headerUtil;
+        this.authLogin = authLogin;
     }
 
     @GetMapping("/api/auth/handleGoogleAuthToken")
     public void saveGoogleOAuthToken(@RequestParam("state") String state, @RequestParam("code") String googleToken) throws IOException,
             InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException,
             URISyntaxException {
-        var parts = state.split(";");
-        String login = parts[0];
-        String jwtToken = parts[1];
-        String loginFromJwtToken = tokenHandler.getUsernameFromToken(jwtToken);
-        if (!login.equals(loginFromJwtToken)) {
+
+        String loginFromJwtToken = tokenHandler.getUsernameFromToken(authLogin.jwtTokenSpliter(state));
+
+        if (!authLogin.loginSpliter(state).equals(loginFromJwtToken)) {
             throw new IllegalStateException("Cannot change Google token of another user.");
         }
-        googleOauthTokenHandler.saveRefreshToken(login, fitHttpClient.retrieveRefreshToken(googleToken));
+        googleOauthTokenHandler.saveRefreshToken(authLogin.loginSpliter(state), fitHttpClient.retrieveRefreshToken(googleToken));
     }
 
     @GetMapping("/api/player/{login}/consent")
