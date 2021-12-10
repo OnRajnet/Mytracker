@@ -1,6 +1,8 @@
 package cz.uhk.rajneon1.tracker.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +11,8 @@ import java.util.List;
 public class Player extends User {
 
     private String refreshToken;
-    @OneToMany(mappedBy = "player")
+
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
     private List<PlayerPerformancePerMatch> performances = new ArrayList<>();
 
     public Player() {

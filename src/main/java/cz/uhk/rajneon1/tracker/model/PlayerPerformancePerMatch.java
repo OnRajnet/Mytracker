@@ -10,12 +10,15 @@ public class PlayerPerformancePerMatch {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="football_match_id")
     private FootballMatch footballMatch;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="player_login")
     private cz.uhk.rajneon1.tracker.model.Player player;
+
     private int steps;
     private double distance;
     private double maxSpeed;
