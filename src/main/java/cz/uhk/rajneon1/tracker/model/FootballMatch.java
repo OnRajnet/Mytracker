@@ -9,7 +9,7 @@ public class FootballMatch {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @OneToMany(mappedBy = "footballMatch")
+    @OneToMany(mappedBy = "footballMatch", cascade = CascadeType.ALL)
     private List<PlayerPerformancePerMatch> playersPerformances;
     @ManyToOne
     private Trainer trainer;
@@ -33,6 +33,7 @@ public class FootballMatch {
         this.startTime = startTime;
         this.endTime = endTime;
 
+        this.playersPerformances.forEach((performance) -> performance.setFootballMatch(this));
         totalSteps = playersPerformances.stream().mapToInt(PlayerPerformancePerMatch::getSteps).sum();
         avgSteps = totalSteps / (double) playersPerformances.size();
         totalDistance = playersPerformances.stream().mapToDouble(PlayerPerformancePerMatch::getDistance).sum();

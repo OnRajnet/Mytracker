@@ -1,23 +1,22 @@
 package cz.uhk.rajneon1.tracker.model;
 
-import cz.uhk.rajneon1.tracker.model.FootballMatch;
-
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
+@IdClass(PlayerPerformancePerMatchId.class)
 public class PlayerPerformancePerMatch {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="football_match_id")
+    @ManyToOne
+    @JoinColumn(name="football_match_id", referencedColumnName = "id")
     private FootballMatch footballMatch;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="player_login")
-    private cz.uhk.rajneon1.tracker.model.Player player;
+    @Id
+    @ManyToOne
+    @JoinColumn(name="player_login", referencedColumnName = "login")
+    private Player player;
 
     private int steps;
     private double distance;
@@ -28,21 +27,13 @@ public class PlayerPerformancePerMatch {
     public PlayerPerformancePerMatch() {
     }
 
-    public PlayerPerformancePerMatch(cz.uhk.rajneon1.tracker.model.Player player, int steps, double distance, double maxSpeed, double minSpeed, double avgSpeed) {
+    public PlayerPerformancePerMatch(Player player, int steps, double distance, double maxSpeed, double minSpeed, double avgSpeed) {
         this.player = player;
         this.steps = steps;
         this.distance = distance;
         this.maxSpeed = maxSpeed;
         this.minSpeed = minSpeed;
         this.avgSpeed = avgSpeed;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public FootballMatch getFootballMatch() {
@@ -53,11 +44,11 @@ public class PlayerPerformancePerMatch {
         this.footballMatch = footballMatch;
     }
 
-    public cz.uhk.rajneon1.tracker.model.Player getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(cz.uhk.rajneon1.tracker.model.Player player) {
+    public void setPlayer(Player player) {
         this.player = player;
     }
 
@@ -99,5 +90,39 @@ public class PlayerPerformancePerMatch {
 
     public void setAvgSpeed(double avgSpeed) {
         this.avgSpeed = avgSpeed;
+    }
+}
+
+class PlayerPerformancePerMatchId implements Serializable {
+    private int footballMatch;
+    private String player;
+
+    public int getFootballMatch() {
+        return footballMatch;
+    }
+
+    public void setFootballMatch(int footballMatch) {
+        this.footballMatch = footballMatch;
+    }
+
+    public String getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(String player) {
+        this.player = player;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlayerPerformancePerMatchId that = (PlayerPerformancePerMatchId) o;
+        return footballMatch == that.footballMatch && Objects.equals(player, that.player);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(footballMatch, player);
     }
 }
