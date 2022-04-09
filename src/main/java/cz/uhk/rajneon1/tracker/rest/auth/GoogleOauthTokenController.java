@@ -58,7 +58,7 @@ public class GoogleOauthTokenController {
     }
 
     @GetMapping("/api/auth/handleGoogleAuthToken")
-    public void saveGoogleOAuthToken(@RequestParam("state") String state, @RequestParam("code") String googleToken) throws IOException,
+    public void saveGoogleOAuthToken(@RequestParam("state") String state, @RequestParam("code") String googleToken, HttpServletResponse response) throws IOException,
             InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException,
             URISyntaxException {
 
@@ -68,6 +68,7 @@ public class GoogleOauthTokenController {
             throw new IllegalStateException("Cannot change Google token of another user.");
         }
         googleOauthTokenHandler.saveRefreshToken(authLogin.loginSpliter(state), fitHttpClient.retrieveRefreshToken(googleToken));
+        response.sendRedirect("http://footballtracker.westeurope.cloudapp.azure.com");
     }
 
     @GetMapping("/api/player/{login}/consent")
@@ -78,7 +79,7 @@ public class GoogleOauthTokenController {
         String protocol = environment.getProperty("server.ssl.key-store") != null ? "https" : "http";
         int port = Integer.parseInt(environment.getProperty("server.port"));
         String token = headerUtil.getTokenFromAuthHeader(request);
-        return fitHttpClient.buildUserConsentRedirect(protocol + "://localhost:" + port, login, token);
+        return fitHttpClient.buildUserConsentRedirect(protocol + "://footballtracker.westeurope.cloudapp.azure.com", login, token);
     }
 
 }
