@@ -48,6 +48,7 @@ public class FitHttpClient {
         builder.setParameter("client_id", clientId);
         builder.setParameter("client_secret", clientSecret);
         builder.setParameter("redirect_uri", "http://footballtracker.westeurope.cloudapp.azure.com/api/auth/handleGoogleAuthToken");
+        //builder.setParameter("redirect_uri", "http://localhost:30600/api/auth/handleGoogleAuthToken");
         builder.setParameter("grant_type", "authorization_code");
         builder.setParameter("prompt", "consent");
         HttpPost postRefresh = new HttpPost(builder.build());

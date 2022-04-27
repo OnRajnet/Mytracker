@@ -69,6 +69,7 @@ public class GoogleOauthTokenController {
         }
         googleOauthTokenHandler.saveRefreshToken(authLogin.loginSpliter(state), fitHttpClient.retrieveRefreshToken(googleToken));
         response.sendRedirect("http://footballtracker.westeurope.cloudapp.azure.com");
+        //response.sendRedirect("http://localhost:8080");
     }
 
     @GetMapping("/api/player/{login}/consent")
@@ -80,6 +81,7 @@ public class GoogleOauthTokenController {
         int port = Integer.parseInt(environment.getProperty("server.port"));
         String token = headerUtil.getTokenFromAuthHeader(request);
         return fitHttpClient.buildUserConsentRedirect(protocol + "://footballtracker.westeurope.cloudapp.azure.com", login, token);
+        //return fitHttpClient.buildUserConsentRedirect(protocol + "://localhost:" + port, login, token);
     }
 
 }
